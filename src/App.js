@@ -1,33 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles.css';
 
 function App() {
   const [newTask, setNewTask] = useState('');
-  const [tasks, setTasks] = useState([]);
-  const [error, setError] = useState('');  // <-- new state for error
-
+  const [tasks, setTasks] = useState(() => {
+    // Load tasks from localStorage or start with empty array
+    const saved = localStorage.getItem('tasks');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [error, setError] = useState('');
   const [deletingIndex, setDeletingIndex] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingText, setEditingText] = useState('');
+
+  // Save tasks to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmedTask = newTask.trim();
     if (!trimmedTask) {
-      setError('Bitch type please 😭😭😭');
+      setError('Please enter a task before adding.');
       return;
     }
     setTasks([...tasks, trimmedTask]);
     setNewTask('');
-    setError(''); // clear error on successful add
+    setError('');
   };
 
   const handleInputChange = (e) => {
     setNewTask(e.target.value);
-    if (error) setError(''); // clear error when user types
+    if (error) setError('');
   };
-
-  // ... other handlers (delete, edit) remain unchanged ...
 
   const handleDelete = (index) => {
     setDeletingIndex(index);
