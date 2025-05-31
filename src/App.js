@@ -1,59 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import TodoItem from './components/TodoItem';
+import React, { useState } from 'react';
+import './styles.css';
 
 function App() {
-  const [task, setTask] = useState('');
-  const [todos, setTodos] = useState(() => {
-    const saved = localStorage.getItem('todos');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [newTask, setNewTask] = useState('');
+  const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos));
-  }, [todos]);
+  // For tracking which task is currently deleting (for animation)
+  const [deletingIndex, setDeletingIndex] = useState(null);
 
-  const addTask = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!task.trim()) return;
-    setTodos([...todos, { id: Date.now(), text: task, completed: false }]);
-    setTask('');
+    const trimmedTask = newTask.trim();
+    if (trimmedTask) {
+      setTasks([...tasks, trimmedTask]);
+      setNewTask('');
+    }
   };
 
-  const toggleComplete = (id) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
-  };
-
-  const deleteTask = (id) => {
-    setTodos(todos.filter(todo => todo.id !== id));
+  const handleDelete = (index) => {
+    setDeletingIndex(index);
+    // Wait for animation duration before removing task
+    setTimeout(() => {
+      setTasks(tasks.filter((_, i) => i !== index));
+      setDeletingIndex(null);
+    }, 300); // animation duration in ms
   };
 
   return (
     <div className="container">
-      <h1>📝 My To-Do List</h1>
-      <form onSubmit={addTask}>
+      <h1>My To-Do List</h1>
+
+      <form onSubmit={handleSubmit} className="form-vertical">
         <input
           type="text"
-          placeholder="Enter a task"
-          value={task}
-          onChange={(e) => setTask(e.target.value)}
+          placeholder="Add a new task"
+          className="input"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
         />
-        <button type="submit">Add</button>
+        <button type="submit" className="button">
+          Add
+        </button>
       </form>
-      <div className="todo-list">
-        {todos.map(todo => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            onToggle={() => toggleComplete(todo.id)}
-            onDelete={() => deleteTask(todo.id)}
-          />
+
+      <ul className="task-list">
+        {tasks.map((task, index) => (
+          <li
+            key={index}
+            className={`task-item ${deletingIndex === index ? 'fade-out' : ''}`}
+          >
+            <span>{task}</span>
+            <button
+              className="delete-button"
+              onClick={() => handleDelete(index)}
+              aria-label={`Delete task: ${task}`}
+            >
+              &times;
+            </button>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
 
 export default App;
-
