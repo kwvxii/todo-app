@@ -4,9 +4,11 @@ import './styles.css';
 function App() {
   const [newTask, setNewTask] = useState('');
   const [tasks, setTasks] = useState([]);
-
-  // For tracking which task is currently deleting (for animation)
   const [deletingIndex, setDeletingIndex] = useState(null);
+
+  // Track which task is currently being edited and its temp value
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingText, setEditingText] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,11 +21,39 @@ function App() {
 
   const handleDelete = (index) => {
     setDeletingIndex(index);
-    // Wait for animation duration before removing task
     setTimeout(() => {
       setTasks(tasks.filter((_, i) => i !== index));
       setDeletingIndex(null);
-    }, 300); // animation duration in ms
+      // Reset edit if deleting the task being edited
+      if (editingIndex === index) {
+        setEditingIndex(null);
+        setEditingText('');
+      }
+    }, 300);
+  };
+
+  // Start editing a task
+  const handleEdit = (index) => {
+    setEditingIndex(index);
+    setEditingText(tasks[index]);
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setEditingText('');
+  };
+
+  // Save edited task
+  const saveEdit = (index) => {
+    const trimmedText = editingText.trim();
+    if (trimmedText) {
+      const updatedTasks = [...tasks];
+      updatedTasks[index] = trimmedText;
+      setTasks(updatedTasks);
+      setEditingIndex(null);
+      setEditingText('');
+    }
   };
 
   return (
@@ -49,14 +79,59 @@ function App() {
             key={index}
             className={`task-item ${deletingIndex === index ? 'fade-out' : ''}`}
           >
-            <span>{task}</span>
-            <button
-              className="delete-button"
-              onClick={() => handleDelete(index)}
-              aria-label={`Delete task: ${task}`}
-            >
-              &times;
-            </button>
+            {editingIndex === index ? (
+              <>
+                <input
+                  type="text"
+                  className="edit-input"
+                  value={editingText}
+                  onChange={(e) => setEditingText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') saveEdit(index);
+                    if (e.key === 'Escape') cancelEdit();
+                  }}
+                  autoFocus
+                />
+                <div className="edit-buttons">
+                  <button
+                    className="button save-btn"
+                    onClick={() => saveEdit(index)}
+                    type="button"
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="button cancel-btn"
+                    onClick={cancelEdit}
+                    type="button"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <span>{task}</span>
+                <div className="task-actions">
+                  <button
+                    className="edit-button"
+                    onClick={() => handleEdit(index)}
+                    aria-label={`Edit task: ${task}`}
+                    type="button"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    className="delete-button"
+                    onClick={() => handleDelete(index)}
+                    aria-label={`Delete task: ${task}`}
+                    type="button"
+                  >
+                    &times;
+                  </button>
+                </div>
+              </>
+            )}
           </li>
         ))}
       </ul>
