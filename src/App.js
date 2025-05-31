@@ -14,7 +14,7 @@ function App() {
     e.preventDefault();
     const trimmedTask = newTask.trim();
     if (!trimmedTask) {
-      setError('Please enter a task before adding.');
+      setError('Bitch type please 😭😭😭');
       return;
     }
     setTasks([...tasks, trimmedTask]);
