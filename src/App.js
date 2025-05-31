@@ -4,27 +4,36 @@ import './styles.css';
 function App() {
   const [newTask, setNewTask] = useState('');
   const [tasks, setTasks] = useState([]);
-  const [deletingIndex, setDeletingIndex] = useState(null);
+  const [error, setError] = useState('');  // <-- new state for error
 
-  // Track which task is currently being edited and its temp value
+  const [deletingIndex, setDeletingIndex] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingText, setEditingText] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmedTask = newTask.trim();
-    if (trimmedTask) {
-      setTasks([...tasks, trimmedTask]);
-      setNewTask('');
+    if (!trimmedTask) {
+      setError('Please enter a task before adding.');
+      return;
     }
+    setTasks([...tasks, trimmedTask]);
+    setNewTask('');
+    setError(''); // clear error on successful add
   };
+
+  const handleInputChange = (e) => {
+    setNewTask(e.target.value);
+    if (error) setError(''); // clear error when user types
+  };
+
+  // ... other handlers (delete, edit) remain unchanged ...
 
   const handleDelete = (index) => {
     setDeletingIndex(index);
     setTimeout(() => {
       setTasks(tasks.filter((_, i) => i !== index));
       setDeletingIndex(null);
-      // Reset edit if deleting the task being edited
       if (editingIndex === index) {
         setEditingIndex(null);
         setEditingText('');
@@ -32,19 +41,16 @@ function App() {
     }, 300);
   };
 
-  // Start editing a task
   const handleEdit = (index) => {
     setEditingIndex(index);
     setEditingText(tasks[index]);
   };
 
-  // Cancel editing
   const cancelEdit = () => {
     setEditingIndex(null);
     setEditingText('');
   };
 
-  // Save edited task
   const saveEdit = (index) => {
     const trimmedText = editingText.trim();
     if (trimmedText) {
@@ -66,8 +72,10 @@ function App() {
           placeholder="Add a new task"
           className="input"
           value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
+          onChange={handleInputChange}
         />
+        {error && <p className="error-message">{error}</p>}
+
         <button type="submit" className="button">
           Add
         </button>

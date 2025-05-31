@@ -263,4 +263,11 @@ body, html {
 .edit-button:hover {
   color: #1e40af; /* blue-800 */
 }
+.error-message {
+  color: #dc2626; /* red-600 */
+  font-size: 0.875rem;
+  margin: 4px 0 12px 0;
+  font-weight: 600;
+  user-select: none;
+}
 
