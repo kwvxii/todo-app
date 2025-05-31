@@ -1,3 +1,26 @@
+/* Full page background with a smooth gradient */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Container for your To-Do app */
+.container {
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+}
+
 /* Animate app container on load */
 .container {
   animation: fadeSlideIn 0.8s ease-out;
@@ -17,6 +40,7 @@
 /* Animate todo item on appear */
 .todo-item {
   background: #f0f0f0;
+  margin-top: 1rem;
   padding: 10px 14px;
   border-radius: 10px;
   display: flex;
